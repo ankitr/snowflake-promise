@@ -28,7 +28,7 @@
     "tslint": "^6.1.3",
     "typescript": "^3.9.9"
   },
-  "dependencies": {
+  "peerDependencies": {
     "snowflake-sdk": "^1.6.0"
   }
 }
