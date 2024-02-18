@@ -1,9 +1,9 @@
-import * as SDK from 'snowflake-sdk';
-import { Statement } from './Statement';
-import { ConfigureOptions } from './types/ConfigureOptions';
-import { ConnectionOptions } from './types/ConnectionOptions';
-import { ExecuteOptions } from './types/ExecuteOptions';
-import { LoggingOptions } from './types/LoggingOptions';
+import * as SDK from "snowflake-sdk";
+import { Statement } from "./Statement";
+import { ConfigureOptions } from "./types/ConfigureOptions";
+import { ConnectionOptions } from "./types/ConnectionOptions";
+import { ExecuteOptions } from "./types/ExecuteOptions";
+import { LoggingOptions } from "./types/LoggingOptions";
 
 export class Snowflake {
   private readonly sdk_connection;
@@ -30,12 +30,12 @@ export class Snowflake {
     // ignored. The new default settings accomplish the same thing as the old
     // `insecureConnect` boolean.
 
-    if (typeof configureOptions === 'boolean') {
+    if (typeof configureOptions === "boolean") {
       console.warn(
-        '[snowflake-promise] the insecureConnect boolean argument is deprecated; ' +
-          'please remove it or use the ocspFailOpen configure option'
+        "[snowflake-promise] the insecureConnect boolean argument is deprecated; " +
+          "please remove it or use the ocspFailOpen configure option"
       );
-    } else if (typeof configureOptions === 'object') {
+    } else if (typeof configureOptions === "object") {
       SDK.configure(configureOptions);
     }
 
@@ -50,7 +50,7 @@ export class Snowflake {
   /** Establishes a connection if we aren't in a fatal state. */
   connect() {
     return new Promise<void>((resolve, reject) => {
-      this.sdk_connection.connect(err => {
+      this.sdk_connection.connect((err) => {
         if (err) {
           reject(err);
         } else {
@@ -63,7 +63,7 @@ export class Snowflake {
   /** Establishes a connection if we aren't in a fatal state. */
   connectAsync() {
     return new Promise<void>((resolve, reject) => {
-      this.sdk_connection.connectAsync(err => {
+      this.sdk_connection.connectAsync((err) => {
         if (err) {
           reject(err);
         } else {
@@ -79,7 +79,7 @@ export class Snowflake {
    */
   destroy() {
     return new Promise<void>((resolve, reject) => {
-      this.sdk_connection.destroy(err => {
+      this.sdk_connection.destroy((err) => {
         if (err) {
           reject(err);
         } else {
@@ -95,8 +95,12 @@ export class Snowflake {
   }
 
   /** A convenience function to execute a SQL statement and return the resulting rows. */
-  execute(sqlText: string, binds?: any[]) {
-    const stmt = this.createStatement({ sqlText, binds });
+  execute(
+    sqlText: string,
+    binds?: any[],
+    parameters?: ExecuteOptions["parameters"]
+  ) {
+    const stmt = this.createStatement({ sqlText, binds, parameters });
     stmt.execute();
     return stmt.getRows();
   }

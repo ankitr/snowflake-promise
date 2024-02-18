@@ -1,9 +1,9 @@
-import { ExecuteOptions } from './types/ExecuteOptions';
-import { Readable } from 'stream';
-import { Snowflake } from './Snowflake';
-import { StatementAlreadyExecutedError } from './types/StatementAlreadyExecutedError';
-import { StatementNotExecutedError } from './types/StatementNotExecutedError';
-import { StreamRowsOptions } from './types/StreamRowsOptions';
+import { ExecuteOptions } from "./types/ExecuteOptions";
+import { Readable } from "stream";
+import { Snowflake } from "./Snowflake";
+import { StatementAlreadyExecutedError } from "./types/StatementAlreadyExecutedError";
+import { StatementNotExecutedError } from "./types/StatementNotExecutedError";
+import { StreamRowsOptions } from "./types/StreamRowsOptions";
 
 export class Statement {
   private rows: any[] = null;
@@ -27,17 +27,23 @@ export class Statement {
    * @return Promise<void>
    */
   execute() {
-    if (this.executePromise) { throw new StatementAlreadyExecutedError(); }
+    if (this.executePromise) {
+      throw new StatementAlreadyExecutedError();
+    }
 
     this.executePromise = new Promise((resolve, reject) => {
       let startTime: number;
 
-      this.executeOptions['complete'] = (err, stmt, rows) => {
+      this.executeOptions["complete"] = (err, stmt, rows) => {
         const elapsed = Date.now() - startTime;
-        if (err) { reject(err); }
-        if (this.logSql) { this.log(elapsed); }
+        if (err) {
+          reject(err);
+        }
+        if (this.logSql) {
+          this.log(elapsed);
+        }
         this.rows = rows;
-        resolve();
+        resolve(this);
       };
 
       startTime = Date.now();
@@ -50,10 +56,13 @@ export class Statement {
   /** Cancel a currently-executing Statement. */
   cancel() {
     return new Promise<void>((resolve, reject) => {
-      this.stmt.cancel(err => {
-        if (err) { reject(err); }
-        else { resolve(); }
-      })
+      this.stmt.cancel((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
     });
   }
 
@@ -62,7 +71,9 @@ export class Statement {
    * @throws if the Statement was not in streaming mode
    */
   getRows() {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.executePromise.then(() => this.rows);
   }
 
@@ -71,25 +82,33 @@ export class Statement {
    * @throws if the statement was in non-streaming mode
    */
   streamRows(options: StreamRowsOptions = {}): Readable {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.stmt.streamRows(options);
   }
 
   /** this statement's SQL text */
   getSqlText(): string {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.stmt.getSqlText();
   }
 
   /** the current status of this statement */
   getStatus(): string {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.stmt.getStatus();
   }
 
   /** the columns produced by this statement */
   getColumns(): object[] {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.stmt.getColumns();
   }
 
@@ -100,19 +119,25 @@ export class Statement {
    * that name, the first column with the specified name will be returned.
    */
   getColumn(columnIdentifier: string | number): object {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.stmt.getColumn(columnIdentifier);
   }
 
   /** the number of rows returned by this statement */
   getNumRows(): number {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.stmt.getNumRows();
   }
 
   /** the number of rows updated by this statement */
   getNumUpdatedRows(): number {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.stmt.getNumUpdatedRows();
   }
 
@@ -122,13 +147,17 @@ export class Statement {
    * executing.
    */
   getSessionState() {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.stmt.getSessionState();
   }
 
   /** the request id that was used when the statement was issued */
   getRequestId(): string {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.stmt.getRequestId();
   }
 
@@ -138,13 +167,15 @@ export class Statement {
    * yet, this method will return undefined.
    */
   getStatementId(): object {
-    if (!this.executePromise) { throw new StatementNotExecutedError(); }
+    if (!this.executePromise) {
+      throw new StatementNotExecutedError();
+    }
     return this.stmt.getStatementId();
   }
 
   /** log execution details */
   private log(elapsedTime: number) {
-    let logMessage = 'Executed';
+    let logMessage = "Executed";
 
     const state = this.getSessionState();
     if (state) {
@@ -152,10 +183,14 @@ export class Statement {
     }
 
     logMessage += `: ${this.getSqlText()}`;
-    if (logMessage[logMessage.length - 1] !== ';') { logMessage += ';'; }
+    if (logMessage[logMessage.length - 1] !== ";") {
+      logMessage += ";";
+    }
 
     if (this.executeOptions.binds) {
-      logMessage += `  with binds: ${JSON.stringify(this.executeOptions.binds)};`
+      logMessage += `  with binds: ${JSON.stringify(
+        this.executeOptions.binds
+      )};`;
     }
 
     logMessage += `  Elapsed time: ${elapsedTime}ms`;
